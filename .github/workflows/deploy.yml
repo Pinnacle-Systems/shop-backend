@@ -1,0 +1,64 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: yarn
+
+      # https://docs.medusajs.com/learn/deployment/general#5-deploy-medusa-application-in-server-mode
+
+      - name: Application build
+        run: yarn install --frozen-lockfile && yarn build
+
+      - name: Install production dependencies
+        run: yarn install --production --frozen-lockfile
+        working-directory: .medusa/server
+
+      - name: Deploy to VPS
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-az --delete --stats"
+          SOURCE: .medusa/server/ ecosystem.config.js
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}/server/
+          SCRIPT_AFTER: |
+            . ~/.nvm/nvm.sh
+            nvm use 24
+
+            export NODE_ENV=production
+            export COOKIE_SECRET=${{secrets.COOKIE_SECRET}}
+            export JWT_SECRET=${{secrets.JWT_SECRET}}
+            export PORT=9005
+            export DATABASE_URL=postgres://${{secrets.DB_APP_USER}}:${{secrets.DB_APP_USER_PASSWD}}@${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_NAME}}
+            export REDIS_URL=redis://${{secrets.REDIS_USER}}:${{secrets.REDIS_PASSWD}}@${{secrets.REDIS_HOST}}:${{secrets.REDIS_PORT}}
+            export STORE_CORS=https://shop.pinnaclesystems.co.in
+            export ADMIN_CORS=https://admin.shop.pinnaclesystems.co.in
+            export VENDOR_CORS=https://vendor.shop.pinnaclesystems.co.in
+            export AUTH_CORS=https://shop.pinnaclesystems.co.in,https://admin.shop.pinnaclesystems.co.in,https://vendor.shop.pinnaclesystems.co.in
+            export MEDUSA_FF_CACHING=true
+
+            export ALGOLIA_APP_ID=${{secrets.ALGOLIA_APP_ID}}
+            export ALGOLIA_API_KEY=${{secrets.ALGOLIA_API_KEY}}
+            export STRIPE_SECRET_API_KEY=blank
+
+            echo "db url is $DATABASE_URL" > test
+            echo "redis url is $REDIS_URL" >> test
+
+            cd ${{ secrets.REMOTE_TARGET }}/server && npm run predeploy
+
+            pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js

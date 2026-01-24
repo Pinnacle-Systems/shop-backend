@@ -1,0 +1,14 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+
+[
+  {
+    "adapter": "vscode-js-debug",
+    "label": "Attach to backend",
+    "type": "node",
+    "request": "attach",
+    "port": 9229
+  }
+]
