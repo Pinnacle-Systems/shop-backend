@@ -5,7 +5,7 @@ module.exports = {
       script: "npm",
       args: "start",
       env: {
-        WORKER_MODE: "server",
+        MEDUSA_WORKER_MODE: "server",
         PORT: 9886,
       },
     },
@@ -14,7 +14,7 @@ module.exports = {
       script: "npm",
       args: "start",
       env: {
-        WORKER_MODE: "worker",
+        MEDUSA_WORKER_MODE: "worker",
         PORT: 9887,
       },
     },

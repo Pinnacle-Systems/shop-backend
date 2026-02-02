@@ -2,10 +2,20 @@ import { defineConfig, loadEnv } from "@medusajs/framework/utils";
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
+console.log("MEDUSA_WORKER_MODE is ", process.env.MEDUSA_WORKER_MODE);
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
+    workerMode: process.env.MEDUSA_WORKER_MODE as
+      | "shared"
+      | "worker"
+      | "server",
+    worker_mode: process.env.MEDUSA_WORKER_MODE as
+      | "shared"
+      | "worker"
+      | "server",
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
