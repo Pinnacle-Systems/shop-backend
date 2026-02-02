@@ -24,10 +24,10 @@ jobs:
       # https://docs.medusajs.com/learn/deployment/general#5-deploy-medusa-application-in-server-mode
 
       - name: Application build
-        run: yarn install --frozen-lockfile && yarn build
+        run: yarn install --immutable && yarn build
 
       - name: Install production dependencies
-        run: yarn install --production --frozen-lockfile
+        run: yarn workspaces focus --production
         working-directory: .medusa/server
 
       - name: Deploy to VPS
