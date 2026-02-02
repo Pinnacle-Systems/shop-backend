@@ -1,8 +1,6 @@
 name: Deploy to VPS
 
-on:
-  push:
-    branches: ["main"]
+on: push
 
 jobs:
   deploy:
@@ -31,6 +29,7 @@ jobs:
         working-directory: .medusa/server
 
       - name: Deploy to VPS
+        if: github.ref == 'refs/heads/main'
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -47,7 +46,6 @@ jobs:
             export NODE_ENV=production
             export COOKIE_SECRET=${{secrets.COOKIE_SECRET}}
             export JWT_SECRET=${{secrets.JWT_SECRET}}
-            export PORT=9005
             export DATABASE_URL=postgres://${{secrets.DB_APP_USER}}:${{secrets.DB_APP_USER_PASSWD}}@${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_NAME}}
             export REDIS_URL=redis://${{secrets.REDIS_USER}}:${{secrets.REDIS_PASSWD}}@${{secrets.REDIS_HOST}}:${{secrets.REDIS_PORT}}
             export STORE_CORS=https://shop.pinnaclesystems.co.in

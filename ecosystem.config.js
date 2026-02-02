@@ -6,6 +6,7 @@ module.exports = {
       args: "start",
       env: {
         WORKER_MODE: "server",
+        PORT: 9886,
       },
     },
     {
@@ -14,6 +15,7 @@ module.exports = {
       args: "start",
       env: {
         WORKER_MODE: "worker",
+        PORT: 9887,
       },
     },
   ],
