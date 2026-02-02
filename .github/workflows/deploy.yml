@@ -39,6 +39,7 @@ jobs:
           SCRIPT_AFTER: |
             . ~/.nvm/nvm.sh
             nvm use 24
+            corepack enable
 
             export NODE_ENV=production
             export COOKIE_SECRET=${{secrets.COOKIE_SECRET}}
